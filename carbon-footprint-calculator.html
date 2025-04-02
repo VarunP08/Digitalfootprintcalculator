@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Carbon Footprint Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f0f8ff;
+            color: #333;
+        }
+        h1 {
+            color: #2c7873;
+            text-align: center;
+        }
+        .intro {
+            background-color: #e0f4f1;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .calculator {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #2c7873;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #205e5b;
+        }
+        .results {
+            margin-top: 20px;
+            background-color: #e0f4f1;
+            padding: 15px;
+            border-radius: 10px;
+            display: none;
+        }
+        .impact-meter {
+            height: 30px;
+            background-color: #e6e6e6;
+            border-radius: 15px;
+            margin: 15px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        .impact-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4caf50, #ffeb3b, #f44336);
+            width: 0%;
+            transition: width 0.5s ease-in-out;
+        }
+        .tips {
+            margin-top: 20px;
+        }
+        .tip-item {
+            margin-bottom: 10px;
+            padding-left: 20px;
+            position: relative;
+        }
+        .tip-item:before {
+            content: "🌱";
+            position: absolute;
+            left: 0;
+        }
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <h1>Digital Carbon Footprint Calculator</h1>
+    
+    <div class="intro">
+        <h2>What is a Digital Carbon Footprint?</h2>
+        <p>Every time you use technology, from streaming videos to sending emails, you're using energy that creates carbon emissions. This calculator helps you understand how your online activities impact the environment.</p>
+    </div>
+    
+    <div class="calculator">
+        <h2>Calculate Your Impact</h2>
+        <p>Enter your average daily usage for each activity:</p>
+        
+        <div class="form-group">
+            <label for="streamingHours">Video Streaming (hours/day):</label>
+            <input type="number" id="streamingHours" min="0" max="24" step="0.5" value="2">
+            <small>Netflix, YouTube, TikTok, etc.</small>
+        </div>
+        
+        <div class="form-group">
+            <label for="socialHours">Social Media (hours/day):</label>
+            <input type="number" id="socialHours" min="0" max="24" step="0.5" value="3">
+            <small>Instagram, Twitter, Facebook, etc.</small>
+        </div>
+        
+        <div class="form-group">
+            <label for="emailCount">Emails (number/day):</label>
+            <input type="number" id="emailCount" min="0" value="10">
+        </div>
+        
+        <div class="form-group">
+            <label for="searchCount">Internet Searches (number/day):</label>
+            <input type="number" id="searchCount" min="0" value="20">
+        </div>
+        
+        <div class="form-group">
+            <label for="cloudStorage">Cloud Storage (GB):</label>
+            <input type="number" id="cloudStorage" min="0" value="5">
+            <small>How much data do you store online?</small>
+        </div>
+        
+        <div class="form-group">
+            <label for="gamingHours">Online Gaming (hours/day):</label>
+            <input type="number" id="gamingHours" min="0" max="24" step="0.5" value="1">
+        </div>
+        
+        <button onclick="calculateFootprint()">Calculate My Footprint</button>
+    </div>
+    
+    <div id="results" class="results">
+        <h2>Your Digital Carbon Footprint</h2>
+        <p id="totalEmissions"></p>
+        
+        <h3>Environmental Impact</h3>
+        <div class="impact-meter">
+            <div id="impactFill" class="impact-fill"></div>
+        </div>
+        <p id="impactDescription"></p>
+        
+        <div class="tips">
+            <h3>Tips to Reduce Your Digital Carbon Footprint</h3>
+            <div id="tipsList"></div>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <p>Note: This calculator provides estimates based on average energy consumption data. Actual carbon footprints may vary.</p>
+        <p>Created for educational purposes for grades 9-12.</p>
+    </div>
+
+    <script>
+        function calculateFootprint() {
+            // Get input values
+            const streaming = parseFloat(document.getElementById('streamingHours').value) || 0;
+            const social = parseFloat(document.getElementById('socialHours').value) || 0;
+            const emails = parseInt(document.getElementById('emailCount').value) || 0;
+            const searches = parseInt(document.getElementById('searchCount').value) || 0;
+            const storage = parseFloat(document.getElementById('cloudStorage').value) || 0;
+            const gaming = parseFloat(document.getElementById('gamingHours').value) || 0;
+            
+            // Carbon factors (grams of CO2 per unit)
+            // These are simplified estimates for educational purposes
+            const streamingFactor = 36; // g CO2 per hour of HD streaming
+            const socialFactor = 10;   // g CO2 per hour
+            const emailFactor = 4;     // g CO2 per email
+            const searchFactor = 0.2;  // g CO2 per search
+            const storageFactor = 0.1; // g CO2 per GB per day
+            const gamingFactor = 55;   // g CO2 per hour of online gaming
+            
+            // Calculate emissions in grams of CO2 per day
+            const streamingEmissions = streaming * streamingFactor;
+            const socialEmissions = social * socialFactor;
+            const emailEmissions = emails * emailFactor;
+            const searchEmissions = searches * searchFactor;
+            const storageEmissions = storage * storageFactor;
+            const gamingEmissions = gaming * gamingFactor;
+            
+            // Total daily emissions in grams
+            const totalDaily = streamingEmissions + socialEmissions + emailEmissions + 
+                              searchEmissions + storageEmissions + gamingEmissions;
+            
+            // Annual emissions in kg
+            const totalAnnual = (totalDaily * 365) / 1000;
+            
+            // Display results
+            document.getElementById('totalEmissions').innerHTML = 
+                `<strong>Daily: ${totalDaily.toFixed(2)} grams of CO2</strong><br>` +
+                `<strong>Yearly: ${totalAnnual.toFixed(2)} kg of CO2</strong><br><br>` +
+                `That's equivalent to driving a car for approximately ${(totalAnnual/404*1000).toFixed(1)} miles per year!`;
+            
+            // Set impact meter
+            let impactPercentage = Math.min((totalDaily / 1000) * 100, 100);
+            document.getElementById('impactFill').style.width = `${impactPercentage}%`;
+            
+            // Impact description
+            let impactText = "";
+            if (totalDaily < 200) {
+                impactText = "Low Impact: Great job! Your digital carbon footprint is relatively small.";
+            } else if (totalDaily < 500) {
+                impactText = "Moderate Impact: Your digital footprint is about average. Check out our tips to reduce it further!";
+            } else {
+                impactText = "High Impact: Your digital activities are creating a significant carbon footprint. Consider following our recommendations below.";
+            }
+            document.getElementById('impactDescription').textContent = impactText;
+            
+            // Generate personalized tips
+            const tipsList = document.getElementById('tipsList');
+            tipsList.innerHTML = "";
+            
+            // Add general tips
+            const tips = [
+                "Lower your video quality when streaming (720p instead of 4K saves about 86% of emissions)",
+                "Download content instead of streaming it multiple times",
+                "Delete unnecessary emails and unsubscribe from newsletters you don't read",
+                "Use bookmarks instead of searching for the same websites repeatedly",
+                "Delete unused files from your cloud storage",
+                "Turn off autoplay features on streaming platforms",
+                "Use dark mode on apps when possible (saves energy on OLED screens)",
+                "Close unused browser tabs and applications"
+            ];
+            
+            // Add personalized tips based on highest emissions
+            const emissionsArray = [
+                {name: "Video streaming", value: streamingEmissions},
+                {name: "Social media", value: socialEmissions},
+                {name: "Emails", value: emailEmissions},
+                {name: "Internet searches", value: searchEmissions},
+                {name: "Cloud storage", value: storageEmissions},
+                {name: "Online gaming", value: gamingEmissions}
+            ];
+            
+            // Sort by highest emissions
+            emissionsArray.sort((a, b) => b.value - a.value);
+            
+            // Add specific tips for the top two emission sources
+            if (emissionsArray[0].name === "Video streaming") {
+                tips.unshift("Try watching videos in standard definition instead of HD or 4K");
+                tips.unshift("Consider having a 'no streaming day' once a week");
+            } else if (emissionsArray[0].name === "Social media") {
+                tips.unshift("Set a daily time limit for social media apps");
+                tips.unshift("Disable autoplay videos in your social media settings");
+            } else if (emissionsArray[0].name === "Online gaming") {
+                tips.unshift("Download games instead of streaming them");
+                tips.unshift("Consider playing offline games occasionally");
+            }
+            
+            // Display tips
+            tips.forEach(tip => {
+                const tipItem = document.createElement('div');
+                tipItem.className = 'tip-item';
+                tipItem.textContent = tip;
+                tipsList.appendChild(tipItem);
+            });
+            
+            // Show results section
+            document.getElementById('results').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
